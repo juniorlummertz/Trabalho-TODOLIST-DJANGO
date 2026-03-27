@@ -1,0 +1,35 @@
+<h1>Aplicativo de Tarefas</h1>
+<hr>
+
+<ul>
+    <!-- Repete o código abaixo p/ cada tarefa no BD -->
+    {% for item in tarefas %}
+        <li>
+            <strong>{{ item.titulo }}</strong> 
+            
+            {% if item.concluida %}
+                <span style="color: green;">(Finalizada)</span>
+            {% else %}
+                <span style="color: orange;">(Pendente)</span>
+                
+                <!-- AQUI ESTÁ A MÁGICA DO BOTÃO! -->
+                <a href="/concluir/{{ item.id }}/">[Marcar como Feita]</a>
+                
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+<br>
+<h3>Adicionar Nova Tarefa:</h3>
+
+<!-- Ao submeter, a View que carregou a tela recebe os dados -->
+<form method="POST">
+    <!-- Token de segurança OBRIGATÓRIO (Impede ataques CSRF) -->
+    {% csrf_token %}
+    
+    <!-- Atributo 'name' é como a View identifica o campo -->
+    <input type="text" name="novo_titulo" required>
+    
+    <button type="submit">Salvar</button>
+</form>
+<a href="/deletar/{{ item.id }}/" style="color:red;">[X Apagar]</a>
