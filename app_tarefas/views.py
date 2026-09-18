@@ -1,21 +1,30 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
+
 from .models import Tarefa
 
+
 def lista_tarefas(request):
-    # VERIFICAO:
     if request.method == 'POST':
-        texto_digitado = request.POST.get('novo_titulo')
-        Tarefa.objects.create(titulo=texto_digitado)
+        titulo = request.POST.get('novo_titulo', '').strip()
+        if titulo:
+            Tarefa.objects.create(titulo=titulo)
         return redirect('home')
-    # SEGUE FLUXO NORMAL
-    minhas_tarefas = Tarefa.objects.all()
-    return render( request, 'lista.html', {'tarefas': minhas_tarefas})
+
+    tarefas = Tarefa.objects.all().order_by('concluida', '-id')
+    return render(request, 'lista.html', {'tarefas': tarefas})
+
+
+@require_POST
 def concluir_tarefa(request, tarefa_id):
-    tarefa = Tarefa.objects.get(id=tarefa_id)
+    tarefa = get_object_or_404(Tarefa, id=tarefa_id)
     tarefa.concluida = True
-    tarefa.save()
+    tarefa.save(update_fields=['concluida'])
     return redirect('home')
+
+
+@require_POST
 def deletar_tarefa(request, tarefa_id):
-    tarefa = Tarefa.objects.get(id=tarefa_id)
+    tarefa = get_object_or_404(Tarefa, id=tarefa_id)
     tarefa.delete()
     return redirect('home')
